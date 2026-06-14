@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Top-level read-only default; the deploy job widens what it needs.
+permissions:
+  contents: read
+
+# Never run two deploys at once, and don't cancel an in-flight production deploy.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage site
+        # The repo's deployable is a single HTML file. We expose it as index.html
+        # so the Pages URL serves the app at the root.
+        run: |
+          mkdir -p _site
+          cp cns-deployment-docs.html _site/index.html
+          # Helpful 404 page so typos don't show a generic GitHub 404
+          cp cns-deployment-docs.html _site/404.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write       # to publish
+      id-token: write    # OIDC — used by deploy-pages, no long-lived secret needed
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
