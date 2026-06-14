@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS IT Deployment Docs — Student Worker Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#bf5700;--accent-dark:#9e4700;--accent-deep:#7a3600;
+  --accent-light:#fff4e8;--accent-warm:#ffe6cc;
+  --dark:#2c1a00;--mid:#6b4d30;--light:#fdf8f3;--white:#fff;--border:#e8d5bf;
+  --radius:10px;--font:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font);background:var(--light);color:var(--dark);min-height:100vh}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,var(--accent),var(--accent-deep));padding:20px 24px 18px;border-bottom:3px solid var(--accent-dark)}
+.header-inner{max-width:700px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.logo-row{display:flex;align-items:center;gap:12px}
+.logo-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);border-radius:10px;border:1px solid rgba(255,255,255,.2)}
+.header h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.header .sub{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px}
+.guide-btn{background:rgba(255,255,255,.15);color:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:7px 14px;font:600 12px var(--font);cursor:pointer}
+.guide-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── Guide Panel ── */
+.guide-panel{max-width:700px;margin:0 auto;padding:16px 24px;background:var(--accent-warm);border-bottom:2px solid var(--accent);font-size:13px;line-height:1.7;display:none}
+.guide-panel.open{display:block}
+.guide-panel h3{margin:0 0 10px;font-size:15px}
+.guide-step{padding:4px 0}
+.guide-tip{margin-top:12px;padding:10px 12px;background:rgba(0,0,0,.04);border-radius:8px;font-size:12px;line-height:1.6}
+
+/* ── Body ── */
+.body{max-width:700px;margin:0 auto;padding:20px 24px 40px}
+
+/* ── Steps ── */
+.step-row{display:flex;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:0}
+.step-item{display:flex;align-items:center;gap:6px}
+.step-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--accent-warm);color:var(--mid);flex-shrink:0}
+.step-circle.active{background:var(--accent);color:#fff}
+.step-label{font-size:12px;color:var(--mid);white-space:nowrap}
+.step-label.active{color:var(--dark);font-weight:600}
+.step-line{width:28px;height:2px;background:var(--accent-warm);margin:0 6px;flex-shrink:0}
+
+/* ── Card ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:0 1px 4px rgba(191,87,0,.06)}
+
+/* ── Task Type Cards ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.task-card{background:var(--accent-light);border:2px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all .15s}
+.task-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.task-card.active{border-color:var(--accent);background:var(--accent-warm);box-shadow:0 0 0 1px var(--accent)}
+.task-icon{font-size:32px;margin-bottom:8px}
+.task-card strong{display:block;font-size:14px;color:var(--dark)}
+.task-card small{font-size:11px;color:var(--mid);margin-top:4px;display:block;line-height:1.4}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.form-grid .full{grid-column:1/-1}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--mid);margin-bottom:4px}
+.field label .req{color:var(--accent);margin-left:2px}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font:13px var(--font);background:var(--white);color:var(--dark);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(191,87,0,.12)}
+.field textarea{min-height:72px;resize:vertical}
+
+/* ── Nav ── */
+.nav-row{display:flex;justify-content:space-between;margin-top:16px}
+.btn-back{background:transparent;border:1px solid var(--border);border-radius:8px;padding:9px 20px;font:600 13px var(--font);cursor:pointer;color:var(--mid)}
+.btn-back:hover{background:var(--accent-light)}
+.btn-next{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 24px;font:700 13px var(--font);cursor:pointer}
+.btn-next:hover{background:var(--accent-dark)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed}
+.btn-next:disabled:hover{background:var(--accent)}
+.btn-reset{background:var(--accent-dark);color:#fff;border:none;border-radius:8px;padding:9px 24px;font:700 13px var(--font);cursor:pointer}
+.btn-reset:hover{background:var(--accent-deep)}
+
+/* ── Output Blocks ── */
+.output-block{background:var(--accent-light);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.output-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--accent-warm)}
+.output-title{font-weight:700;font-size:13px;color:var(--dark)}
+.output-subtitle{font-size:11px;color:var(--mid);margin-top:1px}
+.output-pre{margin:0;padding:14px;font:12px/1.6 var(--mono);white-space:pre-wrap;word-break:break-word;background:var(--white)}
+.copy-btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font:700 12px var(--font);cursor:pointer;white-space:nowrap}
+.copy-btn:hover{background:var(--accent-dark)}
+.copy-btn.copied{background:#2e7d32}
+
+/* ── Checklist ── */
+.checklist-box{background:var(--accent-warm);border:2px solid rgba(191,87,0,.25);border-radius:var(--radius);padding:16px}
+.checklist-box h4{margin:0 0 8px;font-size:14px}
+
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+.check-grid label{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--dark)}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--mid);border-top:1px solid var(--border)}
+
+.hidden{display:none!important}
+
+@media(max-width:520px){
+  .form-grid{grid-template-columns:1fr}
+  .check-grid{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-row">
+      <div class="logo-icon">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="2" y="6" width="22" height="15" rx="2" stroke="white" stroke-width="2"/><line x1="7" y1="24" x2="19" y2="24" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="21" x2="13" y2="24" stroke="white" stroke-width="2"/><circle cx="13" cy="13" r="3" fill="white" opacity="0.6"/></svg>
+      </div>
+      <div>
+        <h1>CNS IT Deployment Docs</h1>
+        <div class="sub">Student Worker Documentation Tool</div>
+      </div>
+    </div>
+    <button class="guide-btn" onclick="toggleGuide()">📖 Workflow Guide</button>
+  </div>
+</div>
+
+<!-- ═══ GUIDE ═══ -->
+<div class="guide-panel" id="guidePanel">
+  <h3>How to Use This Tool</h3>
+  <div class="guide-step"><strong>1.</strong> Select your task type (Imaging, Pickup, or New Deploy)</div>
+  <div class="guide-step"><strong>2.</strong> Fill in the device / request details from the INC or TASK</div>
+  <div class="guide-step"><strong>3.</strong> Review the auto-generated outputs on the final screen</div>
+  <div class="guide-step"><strong>4.</strong> Click <strong>Copy</strong> next to each output and paste into Planner / ServiceNow</div>
+  <div class="guide-step"><strong>5.</strong> Check off the post-copy checklist, then hit <strong>Start New Task</strong></div>
+  <div class="guide-tip"><strong>Teams Access:</strong> This app is pinned as a tab in your <em>Deployments - Students</em> channel in CNS IT Teams. Open Teams → channel → click the <strong>CNS Deployment Docs</strong> tab.</div>
+</div>
+
+<!-- ═══ BODY ═══ -->
+<div class="body">
+  <div class="step-row hidden" id="stepRow"></div>
+  <div class="card" id="cardArea">
+    <!-- Static initial content (visible before JS loads) -->
+    <div class="card-grid" id="staticCards">
+      <div class="task-card" id="tc-imaging">
+        <div class="task-icon">🖥️</div>
+        <strong>Imaging / Reimage</strong>
+        <small>Document completed imaging task</small>
+      </div>
+      <div class="task-card" id="tc-pickup">
+        <div class="task-icon">📦</div>
+        <strong>Pickup Request</strong>
+        <small>Document completed pickup task</small>
+      </div>
+      <div class="task-card" id="tc-deploy">
+        <div class="task-icon">🚀</div>
+        <strong>Computer Deployment</strong>
+        <small>Document completed deployment</small>
+      </div>
+    </div>
+    <noscript>
+      <p style="text-align:center;color:var(--mid);margin-top:16px;font-size:13px;">
+        ⚠️ JavaScript is required. Please open this file directly in Chrome, Edge, or Safari — not in a file preview or SharePoint viewer.
+      </p>
+    </noscript>
+  </div>
+  <div class="nav-row hidden" id="navRow">
+    <button class="btn-back" onclick="goBack()">← Back</button>
+    <button class="btn-next" id="btnNext" onclick="goNext()">Next →</button>
+  </div>
+</div>
+
+<div class="footer">IT Deployment Services • CNS IT • UT Austin • <span id="yr"></span></div>
+
+<script>
+// ── Data ──
+var IMAGING_TYPES=["Reimage","New"];
+var OS_TYPES=["MAC","WINDOWS"];
+var USER_TYPES=["Indiv-Research","Indiv-Faculty","Indiv-Staff","Indiv-Admin","Indiv-Student","Student Workers","Shared-Lab","Shared-Classroom","Shared-Kiosk"];
+
+
+var form={taskType:"",incNumber:"",imagingType:"Reimage",model:"",utTag:"",osType:"",eid:"",userType:"",roomNumber:"",poNumber:"",studentName:"",notes:"",utTags:"",building:"",endUserName:"",serialNumber:"",macAddress:"",encryption:""};
+var step=0;
+
+function getSteps(){
+  if(form.taskType==="pickup")return["Task Type","Pickup Details","Review & Copy"];
+  if(form.taskType==="deploy")return["Task Type","Deployment Details","Review & Copy"];
+  return["Task Type","Imaging Details","Review & Copy"];
+}
+
+// ── Render Engine ──
+function render(){
+  var steps=getSteps();
+  var cur=Math.min(step,steps.length-1);
+  var sr=document.getElementById("stepRow");
+  if(step>0){
+    sr.classList.remove("hidden");
+    sr.innerHTML=steps.map(function(s,i){return '<div class="step-item"><div class="step-circle'+(i<=cur?" active":"")+'">'+( i<cur?"✓":i+1)+'</div><span class="step-label'+(i<=cur?" active":"")+'">'+ s+'</span>'+(i<steps.length-1?'<div class="step-line"></div>':"")+'</div>'}).join("");
+  }else{sr.classList.add("hidden")}
+
+  var card=document.getElementById("cardArea");
+  if(step===0) card.innerHTML=renderStep0();
+  else if(form.taskType==="pickup"&&step===1) card.innerHTML=renderPickupInfo();
+  else if(form.taskType==="pickup"&&step>=2) card.innerHTML=renderReview();
+  else if(form.taskType==="deploy"&&step===1) card.innerHTML=renderDeployInfo();
+  else if(form.taskType==="deploy"&&step>=2) card.innerHTML=renderReview();
+  else if(step===1) card.innerHTML=renderImagingInfo();
+  else card.innerHTML=renderReview();
+
+  var nav=document.getElementById("navRow");
+  var btn=document.getElementById("btnNext");
+  if(step>0){
+    nav.classList.remove("hidden");
+    if(cur<steps.length-1){
+      btn.textContent="Next →";btn.className="btn-next";btn.onclick=goNext;btn.disabled=!canAdvance();
+    }else{
+      btn.textContent="↻ Start New Task";btn.className="btn-reset";btn.onclick=resetForm;btn.disabled=false;
+    }
+  }else{nav.classList.add("hidden")}
+}
+
+// ── Step Renderers ──
+function renderStep0(){
+  var types=[
+    {key:"imaging",icon:"🖥️",label:"Imaging / Reimage",desc:"Document completed imaging task"},
+    {key:"pickup",icon:"📦",label:"Pickup Request",desc:"Document completed pickup task"},
+    {key:"deploy",icon:"🚀",label:"Computer Deployment",desc:"Document completed deployment"}
+  ];
+  return '<div class="card-grid">'+types.map(function(t){return '<div class="task-card'+(form.taskType===t.key?" active":"")+'" onclick="selectType(\''+t.key+'\')"><div class="task-icon">'+t.icon+'</div><strong>'+t.label+'</strong><small>'+t.desc+'</small></div>'}).join("")+'</div>';
+}
+
+function renderImagingInfo(){
+  return '<div class="form-grid">'+
+    field("INC / TASK Number","incNumber",true,"TASK0000001")+
+    selectField("New / Reimage","imagingType",true,IMAGING_TYPES)+
+    field("Model","model",true,"Dell Lat 7430")+
+    field("UT Tag (DEPT-TAG)","utTag",true,"DEPT-T00000")+
+    selectField("OS","osType",true,OS_TYPES,"Select OS…")+
+    field("EID","eid",true,"testuser1")+
+    selectField("UserType","userType",true,USER_TYPES,"Select…")+
+    field("Room Number","roomNumber",true,"BLDG 0.000")+
+    field("PO","poNumber",false,"0000U00000 = DEPT")+
+    field("Your Name","studentName",false,"Student Worker name")+
+    '<div class="full">'+textareaField("Additional Notes","notes",false,"Any extra details…")+'</div>'+
+  '</div>';
+}
+
+function renderPickupInfo(){
+  return '<div class="form-grid">'+
+    field("INC / TASK Number","incNumber",true,"TASK0000002")+
+    field("UT Tag","utTags",true,"tag00000")+
+    field("Building","building",true,"PAT")+
+    field("Room Number","roomNumber",true,"141")+
+    field("End User EID","eid",false,"testuser2")+
+    field("Your Name","studentName",false,"Student Worker name")+
+    '<div class="full">'+textareaField("Additional Notes","notes",false,"Any extra details about the pickup…")+'</div>'+
+  '</div>';
+}
+
+function renderDeployInfo(){
+  return '<div class="form-grid">'+
+    field("INC / TASK Number","incNumber",true,"TASK0000003")+
+    field("End User Name","endUserName",true,"Jane Doe")+
+    field("End User EID","eid",false,"testuser3")+
+    field("Model","model",true,"Dell Lat 7430")+
+    field("Inventory Tag","utTag",true,"A00000")+
+    field("Serial Number","serialNumber",true,"XXX0000000")+
+    field("MAC Address","macAddress",false,"00:11:22:33:44:55")+
+    selectField("OS","osType",true,OS_TYPES,"Select OS…")+
+    selectField("Encryption","encryption",true,["Yes","No"],"Select…")+
+    field("Deployment Location","roomNumber",true,"BLDG 0.000")+
+    field("Your Name","studentName",false,"Student Worker name")+
+    '<div class="full">'+textareaField("Additional Notes","notes",false,"Any extra deployment details…")+'</div>'+
+  '</div>';
+}
+
+function renderReview(){
+  var html="";
+  html+=outputBlock("📝 ServiceNow Work Notes","Paste into the Work Notes field on the INC/TASK",genServiceNowNotes());
+  if(form.taskType==="deploy"){
+    html+=outputBlock("📨 Inventory Channel Message","Copy and paste into the Inventory channel in Teams to notify Kyle",genInventoryMessage());
+  }
+  html+='<div class="checklist-box"><h4>✅ Post-Copy Checklist</h4><div class="check-grid">'+
+    '<label><input type="checkbox"> ServiceNow work notes pasted</label>'+
+    '<label><input type="checkbox"> Planner task marked "Completed"</label>'+
+    (form.taskType==="deploy"?'<label><input type="checkbox"> Posted to Inventory channel</label>':'')+
+  '</div></div>';
+  return html;
+}
+
+function genInventoryMessage(){
+  var loc=form.roomNumber||"Unknown location";
+  var d=new Date().toLocaleDateString("en-US");
+  var lines=[
+    "🚀 Computer Deployment Completed",
+    "",
+    "Deployed to: "+(form.endUserName||"Unknown")+(form.eid?" ("+form.eid+")":""),
+    "Location: "+loc,
+    "",
+    "INC/TASK: "+form.incNumber,
+    "Model: "+form.model,
+    "Inventory Tag: "+form.utTag,
+    "Serial: "+form.serialNumber,
+    form.macAddress?"MAC Address: "+form.macAddress:"",
+    "OS: "+form.osType,
+    "Encryption: "+form.encryption,
+    "",
+    "Deployed by: "+(form.studentName||"Student Worker"),
+    "Date: "+d,
+    form.notes?"\nNotes: "+form.notes:""
+  ];
+  return lines.filter(function(l){return l!=null}).join("\n");
+}
+
+
+// ── Field Helpers ──
+function field(label,key,req,ph){
+  return `<div class="field"><label>${label}${req?'<span class="req">*</span>':""}</label>
+  <input value="${esc(form[key])}" placeholder="${ph||""}" oninput="updateField('${key}',this.value)"></div>`;
+}
+function selectField(label,key,req,opts,ph,extra){
+  var o=opts.map(function(v){return '<option'+(form[key]===v?' selected':'')+'>'+v+'</option>'}).join("");
+  var ext=extra?(extra+";"):"";
+  return '<div class="field"><label>'+label+(req?'<span class="req">*</span>':"")+'</label>'+
+  '<select onchange="'+ext+'updateField(\''+key+'\',this.value)">'+
+  (ph?'<option value=""'+(!form[key]?' selected':'')+'>'+ph+'</option>':"")+o+
+  '</select></div>';
+}
+function textareaField(label,key,req,ph){
+  return `<div class="field"><label>${label}${req?'<span class="req">*</span>':""}</label>
+  <textarea placeholder="${ph||""}" oninput="updateField('${key}',this.value)">${esc(form[key])}</textarea></div>`;
+}
+function outputBlock(title,sub,content){
+  const id="cp_"+Math.random().toString(36).slice(2,8);
+  return `<div class="output-block">
+    <div class="output-header"><div><div class="output-title">${title}</div><div class="output-subtitle">${sub}</div></div>
+    <button class="copy-btn" id="${id}" onclick="copyText(this,'${esc4attr(content)}')">Copy</button></div>
+    <pre class="output-pre">${esc(content)}</pre></div>`;
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function esc4attr(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n")}
+
+// ── Generators ──
+function genServiceNowNotes(){
+  var d=new Date().toLocaleDateString("en-US");
+  var who=form.studentName||"Student Worker";
+  if(form.taskType==="imaging"){
+    var headline=[form.incNumber,form.imagingType,form.model,form.utTag,form.osType,"EID: "+form.eid,"UserType: "+form.userType,"Room Number: "+form.roomNumber,form.poNumber?"PO: "+form.poNumber:""].filter(Boolean).join(", ");
+    return [
+      "Imaging Task Completed",
+      "",
+      headline,
+      "",
+      "Completed by: "+who,
+      "Date: "+d,
+      form.notes?"\nNotes: "+form.notes:""
+    ].filter(function(l){return l!=null&&l!==""||l===""}).join("\n");
+  }
+  if(form.taskType==="pickup"){
+    var loc=[form.building,form.roomNumber].filter(Boolean).join(" ");
+    var headline="Pickup Request/"+form.incNumber+"/"+(form.utTags||"")+"/"+(loc||"")+"/"+(form.eid||"");
+    return [
+      "Pickup Request Completed",
+      "",
+      headline,
+      "",
+      "Completed by: "+who,
+      "Date: "+d,
+      form.notes?"\nNotes: "+form.notes:""
+    ].filter(function(l){return l!=null&&l!==""||l===""}).join("\n");
+  }
+  if(form.taskType==="deploy"){
+    return [
+      "Computer Deployment Completed",
+      "",
+      "INC/TASK: "+form.incNumber,
+      "Deployed to: "+form.endUserName+(form.eid?" ("+form.eid+")":""),
+      "Model: "+form.model,
+      "Inventory Tag: "+form.utTag,
+      "Serial: "+form.serialNumber,
+      form.macAddress?"MAC Address: "+form.macAddress:"",
+      "OS: "+form.osType,
+      "Encryption: "+form.encryption,
+      "Location: "+form.roomNumber,
+      form.notes?"Notes: "+form.notes:"",
+      "",
+      "Completed by: "+who,
+      "Date: "+d
+    ].filter(function(l){return l!=null&&l!==""||l===""}).join("\n");
+  }
+  return"";
+}
+
+// ── Actions ──
+function selectType(t){form.taskType=t;step=1;render()}
+function updateField(k,v){form[k]=v;updateNextBtn();}
+function updateNextBtn(){var btn=document.getElementById("btnNext");if(btn&&btn.className==="btn-next")btn.disabled=!canAdvance();}
+function goBack(){step=Math.max(0,step-1);render()}
+function goNext(){if(canAdvance()){step++;render()}}
+function resetForm(){
+  form={taskType:"",incNumber:"",imagingType:"Reimage",model:"",utTag:"",osType:"",eid:"",userType:"",roomNumber:"",poNumber:"",studentName:"",notes:"",utTags:"",building:"",endUserName:"",serialNumber:"",macAddress:"",encryption:""};
+  step=0;render();
+}
+function canAdvance(){
+  if(step===0)return!!form.taskType;
+  if(form.taskType==="pickup"&&step===1)return form.incNumber&&form.utTags&&form.building;
+  if(form.taskType==="imaging"&&step===1)return form.incNumber&&form.model&&form.utTag&&form.osType&&form.eid&&form.userType&&form.roomNumber;
+  if(form.taskType==="deploy"&&step===1)return form.incNumber&&form.endUserName&&form.model&&form.utTag&&form.serialNumber;
+  return true;
+}
+function toggleGuide(){document.getElementById("guidePanel").classList.toggle("open");var b=document.querySelector(".guide-btn");b.textContent=document.getElementById("guidePanel").classList.contains("open")?"Close Guide":"📖 Workflow Guide"}
+function copyText(btn,text){
+  var decoded=text.replace(/\\n/g,"\n").replace(/\\'/g,"'").replace(/\\\\/g,"\\");
+  navigator.clipboard.writeText(decoded).then(function(){btn.textContent="✓ Copied!";btn.classList.add("copied");setTimeout(function(){btn.textContent="Copy";btn.classList.remove("copied")},2000)});
+}
+
+// ── Init ──
+document.addEventListener("DOMContentLoaded",function(){
+  try{
+    document.getElementById("yr").textContent=new Date().getFullYear();
+    // Bind static cards for step 0
+    document.getElementById("tc-imaging").addEventListener("click",function(){selectType("imaging")});
+    document.getElementById("tc-pickup").addEventListener("click",function(){selectType("pickup")});
+    document.getElementById("tc-deploy").addEventListener("click",function(){selectType("deploy")});
+  }catch(e){console.error("Init error:",e)}
+});
+</script>
+</body>
+</html>
