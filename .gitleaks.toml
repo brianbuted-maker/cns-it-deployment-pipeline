@@ -1,0 +1,41 @@
+# Gitleaks config — extends the default ruleset with patterns specific to this codebase.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+# Pull in the maintained default ruleset; we only add to it below.
+useDefault = true
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Custom rules
+# ──────────────────────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "ut-eid-with-context"
+description = "UT EID adjacent to credential-like context (password, token, secret)"
+# Matches the *contextual* leak only — bare 4-8 char strings would be far too noisy.
+# Example positive: password=testuser1, eid_token: abc1234
+regex = '''(?i)(password|passwd|pwd|secret|token|api[_-]?key)[\s:=]+[a-z]{2,4}[0-9]{1,5}\b'''
+tags = ["ut-austin", "credential"]
+
+[[rules]]
+id = "servicenow-instance-credential"
+description = "ServiceNow instance URL paired with credentials"
+regex = '''https?://[a-z0-9-]+\.service-now\.com[^\s]*(?:user|pass|token|auth)[\s:=]+["']?[^\s"']+["']?'''
+tags = ["servicenow", "credential"]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Allowlist
+# ──────────────────────────────────────────────────────────────────────────────
+
+[allowlist]
+description = "Documentation and placeholder values that look like secrets but aren't"
+paths = [
+  '''README\.md$''',
+  '''SECURITY\.md$''',
+  '''\.github/.*\.md$''',
+]
+# Placeholder EIDs used as form examples (e.g. testuser1, testuser2, testuser3)
+# These are documented sample values in the source — not real credentials.
+regexes = [
+  '''placeholder=["'](testuser1|testuser2|testuser3|testuser4)["']''',
+]
