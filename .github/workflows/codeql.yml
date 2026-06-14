@@ -1,0 +1,45 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly scan on Monday at 06:00 UTC — catches new CodeQL rules even when the repo is quiet
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write   # required to upload SARIF to the Security tab
+      actions: read            # required for private repos; harmless on public
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript]   # the HTML file is parsed as JS by CodeQL
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # security-extended adds higher-precision DOM XSS queries which matter for this app;
+          # security-and-quality also catches code-quality issues that often correlate with bugs.
+          queries: security-extended,security-and-quality
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'
