@@ -24,6 +24,20 @@ The enterprise version is used as part of an operational support workflow. It he
 The public version has been separated from the operational environment and sanitized for portfolio and educational purposes.
 
 
+## Security Engineering Highlights
+
+This project applies security controls throughout the development and deployment workflow:
+
+* **Static application analysis:** CodeQL scans the JavaScript code and uploads findings in SARIF format.
+* **Secret detection:** Gitleaks checks commits for accidentally exposed credentials and sensitive values.
+* **Cross-platform script analysis:** ShellCheck and PSScriptAnalyzer inspect Bash and PowerShell scripts, including scripts that may execute with elevated privileges.
+* **Least-privilege permissions:** Each GitHub Actions workflow declares only the permissions required for its function.
+* **Secretless deployment:** GitHub Pages deployment uses OpenID Connect rather than a long-lived deployment credential.
+* **Dependency monitoring:** Dependabot monitors GitHub Actions dependencies for available updates.
+* **Documented threat model:** The project identifies risks involving DOM-based XSS, privileged execution, unsafe output paths, external dependencies, and CI/CD supply-chain security.
+* **Security roadmap:** Planned improvements include SHA-pinned actions, Content Security Policy, signed PowerShell scripts, SBOM generation, signed release artifacts, and stronger output-path validation.
+
+
 ---
 
 ## What's in the repo
