@@ -8,6 +8,21 @@ This public repository demonstrates the project's general architecture, cross-pl
 
 > **Disclaimer:** This is an independently maintained public portfolio repository. It is not the operational repository and is not an official University of Texas at Austin product, service, or publication.
 
+## Real-World Use
+
+I originally designed this workflow to help student workers perform IT deployment tasks more consistently and accurately.
+
+The enterprise version is used as part of an operational support workflow. It helps technicians:
+
+* Gather standardized Windows and macOS device information
+* Prepare consistent ServiceNow work notes
+* Generate structured team-status messages
+* Document imaging, reimaging, pickup, and deployment activities
+* Reduce missing information and inconsistent documentation
+* Follow a repeatable process across technicians
+
+The public version has been separated from the operational environment and sanitized for portfolio and educational purposes.
+
 
 ---
 
