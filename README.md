@@ -1,8 +1,15 @@
 # CNS IT Deployment Docs
 
-A small, single-file static web tool used by CNS IT student workers at UT Austin to generate consistent ServiceNow work notes and Planner messages for three types of deployment tasks: imaging/reimage, equipment pickups, and new computer deployments. The repository also ships small Windows (PowerShell) and macOS (Bash) helper scripts that gather device info during a deployment.
+# CNS IT Deployment Pipeline
 
-The app and scripts are intentionally simple. The interesting work in this repository is the CI/CD pipeline and the security tooling around it.
+A sanitized public portfolio version of an IT deployment workflow I designed for use by student workers in a higher-education IT support environment.
+
+The operational version is maintained separately in an authorized enterprise repository and is actively used to standardize computer deployments, equipment pickups, reimaging tasks, device-information collection, and support documentation.
+
+This public repository demonstrates the project's general architecture, cross-platform automation, secure CI/CD pipeline, and application-security controls. It does not contain production data, credentials, internal infrastructure details, restricted documentation, or confidential user information.
+
+> **Disclaimer:** This is an independently maintained public portfolio repository. It is not the operational repository and is not an official University of Texas at Austin product, service, or publication.
+
 
 ---
 
