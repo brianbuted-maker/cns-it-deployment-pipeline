@@ -1,5 +1,3 @@
-# CNS IT Deployment Docs
-
 # CNS IT Deployment Pipeline
 
 A sanitized public portfolio version of an IT deployment workflow I designed for use by student workers in a higher-education IT support environment.
