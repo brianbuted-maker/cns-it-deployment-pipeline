@@ -112,9 +112,9 @@ Each workflow declares its own least-privilege `permissions:` block. The Pages d
 
 ---
 
-## Security choices and why
+## Threat Model and Security Decisions
 
-The application is client-side only — it never sends data anywhere. That bounds the threat model, but it doesn't eliminate it.
+The application is client-side only and is not designed to transmit collected information to a remote service. This limits the network-facing threat model, but it does not eliminate application, endpoint, data-handling, or software-supply-chain risks.
 
 **Relevant risks for this codebase:**
 
@@ -124,7 +124,9 @@ The application is client-side only — it never sends data anywhere. That bound
 4. **Supply chain — Actions.** Third-party actions are pinned to release tags in this exercise to keep diffs readable; Dependabot is configured to open PRs when newer versions ship. In production this should be tightened to commit SHAs (see *Looking ahead*).
 5. **Workflow permissions.** Every workflow sets `permissions:` explicitly at the top. The default `GITHUB_TOKEN` scope in this repo is read-only; each job widens only what it needs (`security-events: write` for SARIF uploads, `pages: write` + `id-token: write` for the OIDC Pages deploy).
 
-**Repository-level settings to enable (configured outside the YAML):**
+### Recommended Repository-Level Controls
+
+The following controls are recommended but should not be assumed to be enabled solely because they are listed here:
 
 - Branch protection on `main`: require PR, require status checks (all of the above workflows), require linear history, prohibit force-push.
 - GitHub native secret scanning + push protection.
@@ -134,9 +136,9 @@ The application is client-side only — it never sends data anywhere. That bound
 
 ---
 
-## Looking ahead
+## Planned Security Hardening
 
-Things deliberately left simple here that I would do before treating this as production:
+The following controls are not currently represented as fully implemented in this public portfolio version. They would be evaluated before using this version as a production application:
 
 - **Pin actions to commit SHAs.** Tags are mutable; SHAs aren't. Dependabot supports SHA pinning with comments preserving the version.
 - **Replace inline event handlers.** The `onclick="…"` attributes in the HTML block any meaningful Content-Security-Policy. Moving to `addEventListener` would let me ship `script-src 'self'` and drop the XSS surface meaningfully.
