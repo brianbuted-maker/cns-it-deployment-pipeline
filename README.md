@@ -24,7 +24,51 @@ The enterprise version is used as part of an operational support workflow. It he
 The public version has been separated from the operational environment and sanitized for portfolio and educational purposes.
 
 
+## Screenshots
+
+### Deployment Interface
+
+![Deployment interface using sanitized demonstration data](docs/images/deployment-interface.png)
+
+### Example Output
+
+![Example deployment output using fictional data](docs/images/deployment-example.png)
+
+### Security Workflows
+
+![Successful GitHub Actions security workflows](docs/images/security-workflows.png)
+
 ## Security Engineering Highlights
+
+### Implemented Controls
+
+- **CodeQL static analysis:** Analyzes the JavaScript code and uploads findings in SARIF format.
+- **Secret scanning with Gitleaks:** Checks commits for potentially exposed credentials and sensitive values.
+- **PowerShell analysis:** Uses PSScriptAnalyzer to inspect the Windows device-information script.
+- **Shell-script analysis:** Uses ShellCheck to inspect the macOS Bash script.
+- **SARIF security reporting:** Uploads supported analysis results for review through GitHub's security interface.
+- **Least-privilege workflow permissions:** Each GitHub Actions workflow explicitly declares the permissions it requires.
+- **OIDC-based GitHub Pages deployment:** Uses short-lived authentication rather than a long-lived deployment credential.
+- **Dependabot configuration:** Monitors GitHub Actions dependencies and proposes updates.
+
+### Documented Risks
+
+- DOM-based XSS risk from dynamic HTML construction
+- Privileged script execution
+- User-controlled report-output paths
+- External resource dependencies
+- GitHub Actions supply-chain risk
+- Local exposure of generated device information
+
+### Planned Hardening
+
+- Pin GitHub Actions to immutable commit SHAs.
+- Replace inline event handlers with `addEventListener`.
+- Implement an effective Content Security Policy.
+- Self-host external fonts.
+- Sign PowerShell scripts.
+- Validate report-output paths.
+- Generate an SBOM and sign release artifacts.
 
 This project applies security controls throughout the development and deployment workflow:
 
@@ -119,9 +163,9 @@ The application is client-side only and is not designed to transmit collected in
 **Relevant risks for this codebase:**
 
 1. **DOM-based XSS.** The app composes large blocks of HTML using string concatenation and assigns to `innerHTML`. There's an `esc()` helper, but field values also flow into `onclick="copyText(this, '…')"` attributes via a separate `esc4attr()` path. CodeQL's `security-extended` suite is configured specifically to flag this kind of pattern.
-2. **Supply chain — external resources.** The HTML pulls IBM Plex from `fonts.googleapis.com` without Subresource Integrity. A compromised CDN response would execute in the page's origin. (See *Looking ahead* below.)
+2. **Supply chain — external resources.** The HTML pulls IBM Plex from `fonts.googleapis.com` without Subresource Integrity. A compromised CDN response would execute in the page's origin. ((See *Planned Security Hardening* below.).)
 3. **Privileged scripts.** `get-device-info-win.ps1` runs as Administrator. `get-device-info-mac.sh` writes to whatever volume happens to be mounted at `/Volumes/<name>/`. Both deserve lint attention beyond what most candidates would apply to "just a helper script" — hence PSScriptAnalyzer and ShellCheck running against them with SARIF uploaded to the Security tab.
-4. **Supply chain — Actions.** Third-party actions are pinned to release tags in this exercise to keep diffs readable; Dependabot is configured to open PRs when newer versions ship. In production this should be tightened to commit SHAs (see *Looking ahead*).
+4. **Supply chain — Actions.** Third-party actions are currently pinned to release tags in this public portfolio version to keep dependency versions readable.; Dependabot is configured to open PRs when newer versions ship. In production this should be tightened to commit SHAs (see *Planned Security Hardening*).
 5. **Workflow permissions.** Every workflow sets `permissions:` explicitly at the top. The default `GITHUB_TOKEN` scope in this repo is read-only; each job widens only what it needs (`security-events: write` for SARIF uploads, `pages: write` + `id-token: write` for the OIDC Pages deploy).
 
 ### Recommended Repository-Level Controls
